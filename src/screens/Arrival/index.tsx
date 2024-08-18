@@ -20,6 +20,7 @@ import { ButtonIcon } from '../../components/ButtonIcon'
 import { X } from 'phosphor-react-native'
 import { Alert } from 'react-native'
 import { getLastAsyncTimestamp } from '../../libs/asyncStorage/asyncStorage'
+import { stopLocationTask } from '../../tasks/backgroundLocationTask'
 
 type RouteParamProps = {
   id: string
@@ -49,7 +50,7 @@ export function Arrival() {
     goBack()
   }
 
-  function handleArrivalRegister() {
+  async function handleArrivalRegister() {
     try {
       if (!historic) {
         return Alert.alert(
@@ -57,6 +58,8 @@ export function Arrival() {
           'Não foi possível obter os dados para registrar a chegada do veículo.'
         )
       }
+
+      await stopLocationTask()
 
       realm.write(() => {
         historic.status = 'arrival'
