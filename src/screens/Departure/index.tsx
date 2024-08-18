@@ -12,7 +12,7 @@ import { Header } from '../../components/Header'
 import { LicensePlateInput } from '../../components/LicensePlateInput'
 import { TextAreaInput } from '../../components/TextAreaInput'
 import { Map } from '../../components/Map'
-import { Container, Content, Message } from './styles'
+import { Container, Content, Message, MessageContent } from './styles'
 import { licensePlateValidate } from '../../utils/licensePlateValidate'
 import {
   LocationAccuracy,
@@ -27,6 +27,7 @@ import { Loading } from '../../components/Loading'
 import { LocationInfo } from '../../components/LocationInfo'
 import { CarSimple } from 'phosphor-react-native'
 import { startLocationTask } from '../../tasks/backgroundLocationTask'
+import { openSettings } from '../../utils/openSettings'
 
 export function Departure() {
   const [description, setDescription] = useState('')
@@ -78,7 +79,8 @@ export function Departure() {
         setIsResgistering(false)
         return Alert.alert(
           'Localização',
-          'É necessário permitir que o App tenha acesso localização em segundo plano. Acesse as configurações do dispositivo e habilite "Permitir o tempo todo."'
+          'É necessário permitir que o App tenha acesso localização em segundo plano. Acesse as configurações do dispositivo e habilite "Permitir o tempo todo."',
+          [{ text: 'Abrir configurações', onPress: openSettings }]
         )
       }
 
@@ -90,7 +92,14 @@ export function Departure() {
           Historic.generate({
             user_id: user!.id,
             license_plate: licensePlate,
-            description
+            description,
+            coords: [
+              {
+                latitude: currentCoords.latitude,
+                longitude: currentCoords.longitude,
+                timestamp: new Date().getTime()
+              }
+            ]
           })
         )
       })
@@ -144,11 +153,15 @@ export function Departure() {
     return (
       <Container>
         <Header title="Saída" />
-        <Message>
-          Você precisa permitir que o aplicativo tenha acesso a localização para
-          acessar essa funcionalidade. Por favor, acesse as configurações do seu
-          dispositivo para conceder a permissão ao aplicativo.
-        </Message>
+        <MessageContent>
+          <Message>
+            Você precisa permitir que o aplicativo tenha acesso a localização
+            para acessar essa funcionalidade. Por favor, acesse as configurações
+            do seu dispositivo para conceder a permissão ao aplicativo.
+          </Message>
+
+          <Button title="Abrir configurações" onPress={openSettings} />
+        </MessageContent>
       </Container>
     )
   }
